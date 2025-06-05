@@ -2,96 +2,279 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Mi Currículum</title>
     {% load static %}
-    <!-- Bootstrap CSS -->
-    <link 
-        href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" 
-        rel="stylesheet">
-    <!-- Bootstrap Icons -->
-    <link 
-        rel="stylesheet" 
-        href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
-    <!-- Tu CSS personalizado -->
-    <link rel="stylesheet" href="{% static 'curriculum/css/style.css' %}">
+    {% load curriculum_extras %}
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Font Awesome para iconos -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        'sans': ['Inter', 'sans-serif'],
+                    },
+                    colors: {
+                        'primary': {
+                            50: '#eff6ff',
+                            500: '#3b82f6',
+                            600: '#2563eb',
+                            700: '#1d4ed8',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    
+    <style>
+        .gradient-bg {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+        
+        .card-hover {
+            transition: all 0.3s ease;
+        }
+        
+        .card-hover:hover {
+            transform: translateY(-5px);
+        }
+        
+        .carousel-fade .carousel-item {
+            opacity: 0;
+            transition: opacity 0.6s ease-in-out;
+        }
+        
+        .carousel-fade .carousel-item.active {
+            opacity: 1;
+        }
+    </style>
 </head>
-<body class="bg-light">
+<body class="bg-gray-50 font-sans">
+    <!-- Header con gradiente y diseño moderno -->
+    <div class="gradient-bg">
+        <div class="container mx-auto px-4 py-16">
+            <div class="text-center text-white">
+                <!-- Foto de perfil con efecto glassmorphism -->
+                <div class="relative inline-block mb-8">
+                    <div class="absolute inset-0 bg-white/20 backdrop-blur-sm rounded-full"></div>
+                    <img src="{% static 'curriculum/img/yope.jpg' %}" 
+                         alt="Foto de Perfil" 
+                         class="relative w-40 h-40 rounded-full object-cover border-4 border-white/30 shadow-2xl">
+                </div>
+                
+                <!-- Información personal -->
+                <h1 class="text-5xl font-bold mb-4 bg-gradient-to-r from-white to-blue-100 bg-clip-text text-transparent">
+                    {{ datos_personales.nombre }}
+                </h1>
+                <div class="flex items-center justify-center mb-4">
+                    <i class="fas fa-envelope mr-3 text-blue-200"></i>
+                    <p class="text-xl text-blue-100">{{ datos_personales.email }}</p>
+                </div>
+                <p class="text-lg text-blue-100 max-w-2xl mx-auto leading-relaxed">
+                    {{ datos_personales.descripcion }}
+                </p>
+            </div>
+        </div>
+    </div>
 
-    <div class="container py-5">
-        <!-- Datos personales -->
-        <div class="text-center mb-5">
-            <img src="{% static 'curriculum/img/yope.jpg' %}" 
-                 alt="Foto de Perfil" 
-                 class="rounded-circle img-thumbnail" 
-                 width="200">
-                 <h1>{{ datos_personales.nombre }}</h1>
-                <p>Email: {{ datos_personales.email }}</p>
-                <p>{{ datos_personales.descripcion }}</p>
+    <!-- Sección de proyectos -->
+    <div class="container mx-auto px-4 py-16">
+        <!-- Título de sección -->
+        <div class="text-center mb-16">
+            <h2 class="text-4xl font-bold text-gray-800 mb-4">Mis Proyectos</h2>
+            <div class="w-24 h-1 bg-gradient-to-r from-blue-500 to-purple-600 mx-auto rounded-full"></div>
         </div>
 
-        <hr>
-
-        <!-- Proyectos -->
-        <h2 class="mb-4">Proyectos</h2>
-        <div class="row">
+        <!-- Grid de proyectos -->
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
             {% for proyecto in proyectos %}
-            <div class="col-md-6 mb-4">
-                <div class="card h-100 shadow-sm">
-                    <!-- Carrusel de imágenes -->
-                    <div id="carouselProyecto{{ proyecto.id }}" class="carousel slide" data-bs-ride="carousel">
-                        <div class="carousel-inner">
-                            {% for imagen in proyecto.imagenes.all %}
-                            <div class="carousel-item {% if forloop.first %}active{% endif %}">
-                                <img src="{{ imagen.imagen.url }}" 
-                                     class="d-block w-100" 
-                                     alt="Imagen de {{ proyecto.titulo }}">
+            <div class="bg-white rounded-2xl shadow-lg overflow-hidden card-hover border border-gray-100">
+                <!-- Carrusel de imágenes -->
+                <div class="relative h-64 bg-gray-100">
+                    <div id="carousel-{{ proyecto.id }}" class="relative h-full carousel-fade">
+                        {% for imagen in proyecto.imagenes.all %}
+                        <div class="carousel-item absolute inset-0 {% if forloop.first %}active{% endif %}">
+                            <img src="{{ imagen.imagen.url }}" 
+                                 class="w-full h-full object-cover" 
+                                 alt="Imagen de {{ proyecto.titulo }}">
+                        </div>
+                        {% empty %}
+                        <div class="carousel-item absolute inset-0 active">
+                            <img src="{% static 'curriculum/img/placeholder.jpg' %}" 
+                                 class="w-full h-full object-cover" 
+                                 alt="Sin imagen">
+                            <div class="absolute inset-0 bg-gray-200 flex items-center justify-center">
+                                <i class="fas fa-image text-gray-400 text-4xl"></i>
                             </div>
-                            {% empty %}
-                            <div class="carousel-item active">
-                                <img src="{% static 'curriculum/img/placeholder.jpg' %}" 
-                                     class="d-block w-100" 
-                                     alt="Sin imagen">
-                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                    
+                    <!-- Controles del carrusel -->
+                    {% if proyecto.imagenes.count > 1 %}
+                    <button onclick="prevSlide('carousel-{{ proyecto.id }}')" 
+                            class="absolute left-4 top-1/2 transform -translate-y-1/2 bg-black/50 hover:bg-black/70 text-white p-2 rounded-full transition-all duration-200">
+                        <i class="fas fa-chevron-left"></i>
+                    </button>
+                    <button onclick="nextSlide('carousel-{{ proyecto.id }}')" 
+                            class="absolute right-4 top-1/2 transform -translate-y-1/2 bg-black/50 hover:bg-black/70 text-white p-2 rounded-full transition-all duration-200">
+                        <i class="fas fa-chevron-right"></i>
+                    </button>
+                    
+                    <!-- Indicadores -->
+                    <div class="absolute bottom-4 left-1/2 transform -translate-x-1/2 flex space-x-2">
+                        {% for imagen in proyecto.imagenes.all %}
+                        <button onclick="goToSlide('carousel-{{ proyecto.id }}', {{ forloop.counter0 }})" 
+                                class="w-2 h-2 bg-white/50 rounded-full hover:bg-white/80 transition-all duration-200 {% if forloop.first %}bg-white{% endif %}" 
+                                data-slide="{{ forloop.counter0 }}"></button>
+                        {% endfor %}
+                    </div>
+                    {% endif %}
+                </div>
+
+                <!-- Contenido de la tarjeta -->
+                <div class="p-6">
+                    <h3 class="text-2xl font-semibold text-gray-800 mb-3">{{ proyecto.titulo }}</h3>
+                    <p class="text-gray-600 mb-6 leading-relaxed">{{ proyecto.descripcion }}</p>
+                    
+                    <!-- Tecnologías -->
+                    {% if proyecto.tecnologias %}
+                    <div class="mb-4">
+                        <div class="flex flex-wrap gap-2">
+                            {% for tech in proyecto.tecnologias|split:"," %}
+                            <span class="px-3 py-1 bg-blue-100 text-blue-800 text-sm rounded-full font-medium">
+                                {{ tech|trim }}
+                            </span>
                             {% endfor %}
                         </div>
-                        {% if proyecto.imagenes.count > 1 %}
-                        <button class="carousel-control-prev" type="button" 
-                                data-bs-target="#carouselProyecto{{ proyecto.id }}" 
-                                data-bs-slide="prev">
-                            <span class="carousel-control-prev-icon"></span>
-                        </button>
-                        <button class="carousel-control-next" type="button" 
-                                data-bs-target="#carouselProyecto{{ proyecto.id }}" 
-                                data-bs-slide="next">
-                            <span class="carousel-control-next-icon"></span>
-                        </button>
-                        {% endif %}
                     </div>
-                    <div class="card-body">
-                        <h5 class="card-title">{{ proyecto.titulo }}</h5>
-                        <p class="card-text">{{ proyecto.descripcion }}</p>
+                    {% endif %}
+                    
+                    <!-- Botones de acción -->
+                    <div class="flex flex-wrap gap-3">
                         {% if proyecto.link_github %}
-                        <a href="{{ proyecto.link_github }}" class="btn btn-dark" target="_blank">
-                            <i class="bi bi-github"></i> Ver en GitHub
+                        <a href="{{ proyecto.link_github }}" 
+                           target="_blank"
+                           class="inline-flex items-center px-4 py-2 bg-gray-900 hover:bg-gray-800 text-white rounded-lg transition-all duration-200 font-medium">
+                            <i class="fab fa-github mr-2"></i>
+                            Ver en GitHub
                         </a>
                         {% endif %}
-                        <a href="{% url 'proyecto_detalle' proyecto.id %}" class="btn btn-primary">
-                            Ver más
+                        <a href="{% url 'proyecto_detalle' proyecto.id %}" 
+                           class="inline-flex items-center px-4 py-2 bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white rounded-lg transition-all duration-200 font-medium shadow-lg hover:shadow-xl">
+                            <i class="fas fa-eye mr-2"></i>
+                            Ver Detalles
                         </a>
                     </div>
                 </div>
             </div>
             {% empty %}
-            <div class="col-12">
-                <div class="alert alert-warning">No hay proyectos todavía.</div>
+            <div class="col-span-full">
+                <div class="bg-yellow-50 border border-yellow-200 rounded-xl p-8 text-center">
+                    <i class="fas fa-exclamation-triangle text-yellow-500 text-3xl mb-4"></i>
+                    <p class="text-yellow-800 text-lg font-medium">No hay proyectos todavía.</p>
+                    <p class="text-yellow-600 mt-2">¡Pronto agregaré algunos proyectos increíbles!</p>
+                </div>
             </div>
             {% endfor %}
         </div>
     </div>
 
-    <!-- Bootstrap JS Bundle -->
-    <script 
-        src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js">
+    <!-- Footer moderno -->
+    <footer class="bg-gray-900 text-white py-12 mt-16">
+        <div class="container mx-auto px-4 text-center">
+            <div class="flex justify-center space-x-6 mb-6">
+                <a href="#" class="text-gray-400 hover:text-white transition-colors duration-200">
+                    <i class="fab fa-linkedin text-2xl"></i>
+                </a>
+                <a href="#" class="text-gray-400 hover:text-white transition-colors duration-200">
+                    <i class="fab fa-github text-2xl"></i>
+                </a>
+                <a href="mailto:{{ datos_personales.email }}" class="text-gray-400 hover:text-white transition-colors duration-200">
+                    <i class="fas fa-envelope text-2xl"></i>
+                </a>
+            </div>
+            <p class="text-gray-400">© 2024 {{ datos_personales.nombre }}. Todos los derechos reservados.</p>
+        </div>
+    </footer>
+
+    <script>
+        // JavaScript para el carrusel personalizado
+        function nextSlide(carouselId) {
+            const carousel = document.getElementById(carouselId);
+            const items = carousel.querySelectorAll('.carousel-item');
+            const activeItem = carousel.querySelector('.carousel-item.active');
+            const activeIndex = Array.from(items).indexOf(activeItem);
+            const nextIndex = (activeIndex + 1) % items.length;
+            
+            activeItem.classList.remove('active');
+            items[nextIndex].classList.add('active');
+            
+            updateIndicators(carouselId, nextIndex);
+        }
+        
+        function prevSlide(carouselId) {
+            const carousel = document.getElementById(carouselId);
+            const items = carousel.querySelectorAll('.carousel-item');
+            const activeItem = carousel.querySelector('.carousel-item.active');
+            const activeIndex = Array.from(items).indexOf(activeItem);
+            const prevIndex = activeIndex === 0 ? items.length - 1 : activeIndex - 1;
+            
+            activeItem.classList.remove('active');
+            items[prevIndex].classList.add('active');
+            
+            updateIndicators(carouselId, prevIndex);
+        }
+        
+        function goToSlide(carouselId, slideIndex) {
+            const carousel = document.getElementById(carouselId);
+            const items = carousel.querySelectorAll('.carousel-item');
+            const activeItem = carousel.querySelector('.carousel-item.active');
+            
+            activeItem.classList.remove('active');
+            items[slideIndex].classList.add('active');
+            
+            updateIndicators(carouselId, slideIndex);
+        }
+        
+        function updateIndicators(carouselId, activeIndex) {
+            const carousel = document.getElementById(carouselId);
+            const indicators = carousel.parentElement.querySelectorAll('[data-slide]');
+            
+            indicators.forEach((indicator, index) => {
+                if (index === activeIndex) {
+                    indicator.classList.add('bg-white');
+                    indicator.classList.remove('bg-white/50');
+                } else {
+                    indicator.classList.remove('bg-white');
+                    indicator.classList.add('bg-white/50');
+                }
+            });
+        }
+        
+        // Auto-play para carruseles (opcional)
+        document.addEventListener('DOMContentLoaded', function() {
+            const carousels = document.querySelectorAll('[id^="carousel-"]');
+            
+            carousels.forEach(carousel => {
+                const items = carousel.querySelectorAll('.carousel-item');
+                if (items.length > 1) {
+                    setInterval(() => {
+                        nextSlide(carousel.id);
+                    }, 5000); // Cambia cada 5 segundos
+                }
+            });
+        });
     </script>
 </body>
 </html>
